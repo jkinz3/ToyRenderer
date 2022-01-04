@@ -31,10 +31,15 @@ void Game::Initialize(HWND window, int width, int height)
 
 	m_Camera = std::make_unique<Camera>();
 
-	m_Camera->Initialize(width, height, Vector3(2.f, 2.f, 2.f), 0.f, 0.f);
+	m_Camera->Initialize(width, height, Vector3(0.f, 0.f, -1.5f), 0.f, 0.f);
 
 	CreateWindowSizeDependentResources();
 	m_font = std::make_unique<DirectX::SpriteFont>(m_deviceResources->GetD3DDevice(), L"Content/Fonts/myfile.spritefont");
+
+	m_Keyboard = std::make_unique<Keyboard>();
+	m_Mouse = std::make_unique<Mouse>();
+
+	m_Mouse->SetWindow(window);
 
     // TODO: Change the timer settings if you want something other than the default variable timestep mode.
     // e.g. for 60 FPS fixed timestep update logic, call:
@@ -63,10 +68,73 @@ void Game::Update(DX::StepTimer const& timer)
 
     // TODO: Add your game logic here.
 
-
-	
+	auto kb = m_Keyboard->GetState();
+	if(kb.Escape)
+	{
+		ExitGame();
+	}
+	auto mouse = m_Mouse->GetState();
+	Input(elapsedTime);
+	m_Camera->Tick(elapsedTime);
     elapsedTime;
 }
+
+void Game::Input(float DeltaTime)
+{
+	auto kb = m_Keyboard->GetState();
+	auto mouse = m_Mouse->GetState();
+	
+	Vector3 deltaLoc = Vector3::Zero;
+	if(kb.W)
+	{
+		deltaLoc.z += 1.f;
+	}
+	if(kb.S)
+	{
+		deltaLoc.z -= 1.f;
+	}
+	if(kb.A)
+	{
+		deltaLoc.x += 1.f;
+	}
+	if(kb.D)
+	{
+		deltaLoc.x -= 1.f;
+	}
+	if(kb.E)
+	{
+		deltaLoc.y += 1.f;
+	}
+	if(kb.Q)
+	{
+		deltaLoc.y -= 1.f;
+	}
+	Keyboard::KeyboardStateTracker keys;
+
+	keys.Update(kb);
+
+	if(keys.pressed.F)
+	{
+		m_Camera->ResetCamera();
+	}
+
+
+	Quaternion q = m_Camera->GetOrientation();
+
+	deltaLoc = Vector3::Transform(deltaLoc, q);
+
+	Vector3 DeltaRot = Vector3::Zero;
+	if(mouse.positionMode == Mouse::MODE_RELATIVE)
+	{
+		DeltaRot = Vector3(float(mouse.x), float(mouse.y), 0.f) * m_Camera->GetMouseSensitivity();
+	}
+
+	m_Camera->MoveCamera(deltaLoc, DeltaRot);
+
+	m_Mouse->SetMode(mouse.rightButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
+
+}
+
 #pragma endregion
 
 #pragma region Frame Render
@@ -112,6 +180,7 @@ void Game::DrawModel()
 {
 	Matrix View = m_Camera->GetViewMatrix();
 	Matrix Projection = m_Camera->GetProjectionMatrix();
+	m_effect->SetView(View);
 	m_effect->SetWorld(m_World);
 	m_shape->Draw(m_effect.get(), m_inputLayout.Get());
 }
@@ -245,6 +314,16 @@ void Game::CreateWindowSizeDependentResources()
 	m_effect->SetProjection(m_Camera->GetProjectionMatrix());
 	m_skyEffect->SetProjection(m_Camera->GetProjectionMatrix());
 
+	float uiScale = 1.f;
+	if(size.bottom == 2160)
+	{
+		uiScale = 2.f;
+	}
+	else if (size.bottom == 1440)
+	{
+		uiScale = 1.3333333f;
+	}
+	Mouse::SetResolution(uiScale);
 
 }
 

@@ -10,6 +10,7 @@ public:
 
 	bool Initialize(int width, int height, Vector3 Pos, float Yaw, float Pitch);
 
+
 	void Tick(float DeltaTime);
 
 	void SetViewSize(int width, int height);
@@ -17,8 +18,14 @@ public:
 	Matrix GetViewMatrix() const;
 	Matrix GetProjectionMatrix() const;
 
+	void MoveCamera(Vector3 DeltaLoc, Vector3 DeltaRot);
 	
-	
+	Quaternion GetOrientation() const;
+
+	float GetMovementSpeed() const;
+	float GetMouseSensitivity() const;
+
+	void ResetCamera();
 
 private:
 
@@ -30,6 +37,9 @@ private:
 	float m_Yaw;
 	float m_Pitch;
 	Vector3 m_Position;
+
+	float MovementSpeed;
+	float MouseSensitivity;
 
 	float m_ViewWidth;
 	float m_ViewHeight;

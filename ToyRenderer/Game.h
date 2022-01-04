@@ -49,6 +49,7 @@ public:
 private:
 
     void Update(DX::StepTimer const& timer);
+	void Input(float DeltaTime);
     void Render();
 	void DrawFPS();
 	void DrawModel();
@@ -83,4 +84,7 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_skyInputLayout;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_cubemap;
+
+	std::unique_ptr<Mouse> m_Mouse;
+	std::unique_ptr<Keyboard> m_Keyboard;;
 };
