@@ -8,7 +8,7 @@
 #include "StepTimer.h"
 #include "Camera.h"
 #include "SkyboxEffect.h"
-
+#include "PhongEffect.h"
 
 // A basic game implementation that creates a D3D11 device and
 // provides a game loop.

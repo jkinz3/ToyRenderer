@@ -21,6 +21,8 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ReadData.h" />
     <ClInclude Include="SkyboxEffect.h" />
+    <ClInclude Include="PhongEffect.h" />
+    <ClInclude Include="BaseEffect.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -31,6 +33,8 @@
     </ClCompile>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="SkyboxEffect.cpp" />
+    <ClCompile Include="PhongEffect.cpp" />
+    <ClCompile Include="BaseEffect.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -55,5 +59,7 @@
   <ItemGroup>
     <FxCompile Include="Shaders\SkyboxEffect_PS.hlsl" />
     <FxCompile Include="Shaders\SkyboxEffect_VS.hlsl" />
+    <FxCompile Include="Shaders\PhongVS.hlsl" />
+    <FxCompile Include="Shaders\PhongPS.hlsl" />
   </ItemGroup>
 </Project>
