@@ -4,7 +4,7 @@
 Camera::Camera()
 {
 	m_FOV = 70.f;
-	MouseSensitivity = 4.f;
+	MouseSensitivity = 0.04f;
 	MovementSpeed = .1f;
 }
 
@@ -30,11 +30,12 @@ bool Camera::Initialize(int width, int height, Vector3 Pos, float Yaw, float Pit
 
 void Camera::Tick(float DeltaTime)
 {
-	constexpr float limit = XM_PIDIV2 - .01f;
+	constexpr float limit = XM_PIDIV2 - 0.01f;
 	m_Pitch = std::max(-limit, m_Pitch);
 	m_Pitch = std::min(+limit, m_Pitch);
 
-	if(m_Yaw > XM_PI)
+	// keep longitude in sane range by wrapping
+	if (m_Yaw > XM_PI)
 	{
 		m_Yaw -= XM_2PI;
 	}
@@ -66,10 +67,12 @@ Matrix Camera::GetProjectionMatrix() const
 
 void Camera::MoveCamera(Vector3 DeltaLoc, Vector3 DeltaRot)
 {
+
+
 	DeltaLoc *= MovementSpeed;
 
 	m_Position += DeltaLoc;
-	
+
 	m_Pitch -= DeltaRot.y;
 	m_Yaw -= DeltaRot.x;
 	UpdateView();
@@ -97,6 +100,40 @@ void Camera::ResetCamera()
 	m_Yaw = 0.f;
 }
 
+float Camera::GetPitch() const
+{
+	return m_Pitch;
+}
+
+float Camera::GetYaw() const
+{
+	return m_Yaw;
+}
+
+Vector3 Camera::GetForwardVector() const
+{
+	Vector3 ForwardVec;
+	ForwardVec.z = cos(m_Yaw) * cos(m_Pitch);
+	ForwardVec.y = sin(m_Pitch);
+	ForwardVec.x = sin(m_Yaw) * cos(m_Pitch);
+	return ForwardVec;
+}
+
+Vector3 Camera::GetUpVector() const
+{
+	Vector3 ForwardVec = GetForwardVector();
+	Vector3 RightVec = GetRightVector();
+	Vector3 UpVec = ForwardVec.Cross(RightVec);
+	return UpVec;
+}
+
+Vector3 Camera::GetRightVector() const
+{
+	Vector3 ForwardVec = GetForwardVector();
+	Vector3 RightVec = Vector3::Up.Cross(ForwardVec);
+	return RightVec;
+}
+
 void Camera::UpdateView()
 {
 	float y = sinf(m_Pitch);
@@ -106,7 +143,7 @@ void Camera::UpdateView()
 
 	XMVECTOR lookAt = m_Position + Vector3(x, y, z);
 
-	m_ViewMatrix = Matrix::CreateLookAt(m_Position, lookAt, Vector3::Up);
+	m_ViewMatrix = XMMatrixLookAtRH(m_Position, lookAt, Vector3::UnitY);
 }
 
 void Camera::UpdateProjection()

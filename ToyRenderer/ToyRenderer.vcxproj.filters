@@ -49,7 +49,6 @@
     </Manifest>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
     <None Include="Content\Fonts\myfile.spritefont" />
     <None Include="Shaders\SkyboxEffect_Common.hlsli" />
   </ItemGroup>

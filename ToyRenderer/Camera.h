@@ -27,6 +27,13 @@ public:
 
 	void ResetCamera();
 
+	float GetPitch() const;
+	float GetYaw() const;
+
+	Vector3 GetForwardVector() const;
+	Vector3 GetUpVector() const;
+	Vector3 GetRightVector() const;
+
 private:
 
 

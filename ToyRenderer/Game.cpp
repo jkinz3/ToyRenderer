@@ -73,7 +73,7 @@ void Game::Update(DX::StepTimer const& timer)
 	{
 		ExitGame();
 	}
-	auto mouse = m_Mouse->GetState();
+
 	Input(elapsedTime);
 	m_Camera->Tick(elapsedTime);
     elapsedTime;
@@ -83,31 +83,40 @@ void Game::Input(float DeltaTime)
 {
 	auto kb = m_Keyboard->GetState();
 	auto mouse = m_Mouse->GetState();
+
+	Vector3 DeltaRot = Vector3::Zero;
+	if (mouse.positionMode == Mouse::MODE_RELATIVE)
+	{
+		DeltaRot = Vector3(float(mouse.x), float(mouse.y), 0.f) * m_Camera->GetMouseSensitivity();
+	}
+
+
+	m_Mouse->SetMode(mouse.rightButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
 	
 	Vector3 deltaLoc = Vector3::Zero;
 	if(kb.W)
 	{
-		deltaLoc.z += 1.f;
+		deltaLoc += m_Camera->GetForwardVector();
 	}
 	if(kb.S)
 	{
-		deltaLoc.z -= 1.f;
+		deltaLoc -= m_Camera->GetForwardVector();
 	}
 	if(kb.A)
 	{
-		deltaLoc.x += 1.f;
+		deltaLoc += m_Camera->GetRightVector();
 	}
 	if(kb.D)
 	{
-		deltaLoc.x -= 1.f;
+		deltaLoc -= m_Camera->GetRightVector();
 	}
 	if(kb.E)
 	{
-		deltaLoc.y += 1.f;
+		deltaLoc += m_Camera->GetUpVector();
 	}
 	if(kb.Q)
 	{
-		deltaLoc.y -= 1.f;
+		deltaLoc -= m_Camera->GetUpVector();
 	}
 	Keyboard::KeyboardStateTracker keys;
 
@@ -119,19 +128,11 @@ void Game::Input(float DeltaTime)
 	}
 
 
-	Quaternion q = m_Camera->GetOrientation();
 
-	deltaLoc = Vector3::Transform(deltaLoc, q);
 
-	Vector3 DeltaRot = Vector3::Zero;
-	if(mouse.positionMode == Mouse::MODE_RELATIVE)
-	{
-		DeltaRot = Vector3(float(mouse.x), float(mouse.y), 0.f) * m_Camera->GetMouseSensitivity();
-	}
 
 	m_Camera->MoveCamera(deltaLoc, DeltaRot);
 
-	m_Mouse->SetMode(mouse.rightButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
 
 }
 
@@ -166,10 +167,12 @@ void Game::Render()
 
 void Game::DrawFPS()
 {
+	auto mouse = m_Mouse->GetState();
 	m_SpriteBatch->Begin();
-	float fps = m_timer.GetFramesPerSecond();
+	float x = float(mouse.x);
+	float y = float(mouse.y);
 	wchar_t szState[64] = {};
-	swprintf_s(szState, L"FPS: %f", fps);
+	swprintf_s(szState, L"Pitch: %f   Yaw: %f", x, y);
 
 	m_font->DrawString(m_SpriteBatch.get(), szState, m_FontPos, Colors::White);
 	m_SpriteBatch->End();
@@ -323,7 +326,6 @@ void Game::CreateWindowSizeDependentResources()
 	{
 		uiScale = 1.3333333f;
 	}
-	Mouse::SetResolution(uiScale);
 
 }
 
